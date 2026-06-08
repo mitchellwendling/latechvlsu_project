@@ -15,7 +15,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from urllib.parse import urlencode
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 import json
 
 from db import init_db, conn, insert_ticket
@@ -24,6 +24,7 @@ API = "https://api.seatgeek.com/2/events"
 QUERY = "LSU Louisiana Tech"
 DATE_FROM = "2026-09-12"
 DATE_TO = "2026-09-13"
+UA = "Mozilla/5.0 (compatible; LATechVsLSU-Dashboard/1.0)"
 
 
 def find_event(client_id):
@@ -34,7 +35,8 @@ def find_event(client_id):
         "datetime_local.lte": DATE_TO,
         "per_page": 5,
     }
-    with urlopen(f"{API}?{urlencode(params)}", timeout=15) as r:
+    req = Request(f"{API}?{urlencode(params)}", headers={"User-Agent": UA})
+    with urlopen(req, timeout=15) as r:
         data = json.load(r)
     events = data.get("events", [])
     if not events:
