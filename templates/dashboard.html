@@ -7,9 +7,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0a1626; --panel: #11203a; --panel2: #16294a;
-    --ink: #e9eef7; --ink-dim: #98a8c4;
-    --gold: #fdd023; --purple: #461d7c; --accent: #5aa9ff;
+    /* LA Tech Bulldogs - Columbia Blue + Red */
+    --bg: #0c1a2e; --panel: #142a48; --panel2: #1b3760;
+    --ink: #f1f4f9; --ink-dim: #9ab0cc;
+    --gold: #e8333a; --purple: #003087; --accent: #6cace4;
     --good: #4cd29a; --bad: #ff7a7a; --warn: #ffb84d;
   }
   * { box-sizing: border-box; }
@@ -18,7 +19,7 @@
     background: var(--bg); color: var(--ink);
   }
   header {
-    padding: 20px 28px; background: linear-gradient(90deg, var(--purple), #2c1454);
+    padding: 20px 28px; background: linear-gradient(90deg, var(--purple), #001a4d);
     border-bottom: 3px solid var(--gold);
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
   }
@@ -261,7 +262,7 @@
 </main>
 
 <script>
-const COLORS = ['#fdd023', '#5aa9ff', '#4cd29a', '#ff7a7a', '#ffb84d', '#c084fc', '#22d3ee'];
+const COLORS = ['#e8333a', '#6cace4', '#4cd29a', '#ffb84d', '#c084fc', '#22d3ee', '#f1f4f9'];
 const baseOpts = {
   responsive: true, maintainAspectRatio: false,
   scales: {
@@ -279,7 +280,7 @@ new Chart(document.getElementById('flightChart'), {
     datasets: [{
       label: 'Cheapest CVG→BTR (round trip)',
       data: {{ flight_history | map(attribute=1) | list | tojson }},
-      borderColor: '#fdd023', backgroundColor: 'rgba(253,208,35,0.15)',
+      borderColor: '#e8333a', backgroundColor: 'rgba(232,51,58,0.15)',
       tension: 0.25, fill: true,
     }]
   },
