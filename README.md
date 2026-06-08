@@ -57,4 +57,39 @@ export SEATGEEK_CLIENT_ID=your_client_id_here
 python3 tickets_seatgeek.py
 ```
 
-The dashboard picks it up automatically. Re-run before each browser refresh, or wrap it in a cron job.
+The dashboard picks it up automatically. Re-run before each browser refresh, or use the auto-refresh agent below.
+
+### Auto-refresh + macOS price-drop alerts
+
+A launch agent runs `tickets_seatgeek.py` every 6 hours and at login. When a new
+all-time low under your threshold lands, you get a native macOS notification.
+
+```bash
+export SEATGEEK_CLIENT_ID=your_client_id
+./launchd/install.sh
+```
+
+That sets up `~/Library/LaunchAgents/com.user.latechvlsu.seatgeek.plist`. Tune the alert with `PRICE_ALERT_THRESHOLD` (default $50) — edit the plist directly or re-run install with the env var set.
+
+Check it's alive:
+
+```bash
+launchctl list | grep latechvlsu
+tail -f .seatgeek.out.log
+```
+
+Uninstall:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.user.latechvlsu.seatgeek.plist
+rm ~/Library/LaunchAgents/com.user.latechvlsu.seatgeek.plist
+```
+
+### Weather + kickoff time
+
+The dashboard pulls both automatically — no setup:
+
+- **Weather**: National Weather Service (free, no key). Shown only inside 10 days of kickoff.
+- **Kickoff time + TV network**: ESPN public scoreboard. Populated once the SEC announces the slot (~12 days out).
+
+Both responses are cached on disk so we don't hammer the upstream APIs.

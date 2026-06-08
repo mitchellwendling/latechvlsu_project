@@ -4,3 +4,6 @@ prices.db
 .venv/
 venv/
 .DS_Store
+.cache_*.json
+.seatgeek.out.log
+.seatgeek.err.log

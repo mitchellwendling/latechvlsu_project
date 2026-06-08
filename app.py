@@ -8,6 +8,8 @@ from flask import Flask, redirect, render_template, request, url_for
 
 from db import init_db, conn, insert_flight, insert_hotel, insert_ticket
 from trip import TRIP, TICKET_SOURCES
+import weather
+import game_info
 
 app = Flask(__name__)
 
@@ -69,6 +71,8 @@ def dashboard():
         "dashboard.html",
         trip=TRIP,
         ticket_sources=TICKET_SOURCES,
+        forecast=weather.forecast(),
+        game=game_info.kickoff(),
         flights=flights,
         flights_ts=flights_ts,
         hotels=hotels,

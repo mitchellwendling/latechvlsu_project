@@ -10,8 +10,12 @@ Run anytime:
 
 This appends a ticket_snapshot row with the current lowest listing price,
 average price, and listing count. The dashboard will pick it up automatically.
+
+Optional: set PRICE_ALERT_THRESHOLD (default 50) to fire a macOS notification
+when the new get-in price is BOTH below the threshold AND a new all-time low.
 """
 import os
+import subprocess
 import sys
 from datetime import datetime, timezone
 from urllib.parse import urlencode
@@ -41,12 +45,35 @@ def find_event(client_id):
     events = data.get("events", [])
     if not events:
         return None
-    # Prefer events whose title mentions both teams.
     for e in events:
         title = e.get("title", "").lower()
         if "lsu" in title and ("louisiana tech" in title or "la tech" in title):
             return e
     return events[0]
+
+
+def previous_low():
+    with conn() as c:
+        row = c.execute(
+            "SELECT MIN(get_in_price) AS p FROM ticket_snapshot WHERE source='SeatGeek'"
+        ).fetchone()
+    return row["p"] if row and row["p"] is not None else None
+
+
+def mac_notify(title, message):
+    """Best-effort macOS desktop notification. Silently no-ops on non-Mac."""
+    if sys.platform != "darwin":
+        return
+    safe_msg = message.replace('"', '\\"')
+    safe_title = title.replace('"', '\\"')
+    try:
+        subprocess.run(
+            ["osascript", "-e",
+             f'display notification "{safe_msg}" with title "{safe_title}" sound name "Glass"'],
+            check=False, timeout=5,
+        )
+    except Exception:
+        pass
 
 
 def snapshot():
@@ -56,6 +83,9 @@ def snapshot():
         print("  export SEATGEEK_CLIENT_ID=your_client_id", file=sys.stderr)
         print("  Get one at https://seatgeek.com/account/develop", file=sys.stderr)
         sys.exit(1)
+
+    threshold = float(os.environ.get("PRICE_ALERT_THRESHOLD", "50"))
+    prev_low = previous_low()
 
     event = find_event(client_id)
     if not event:
@@ -68,13 +98,14 @@ def snapshot():
         print(f"Event found ({event.get('title')}) but no lowest_price yet.", file=sys.stderr)
         sys.exit(3)
 
+    lowest = float(lowest)
     captured_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     init_db()
     with conn() as c:
         insert_ticket(c, captured_at, {
             "source": "SeatGeek",
             "section": "Get-in (cheapest listing)",
-            "get_in_price": float(lowest),
+            "get_in_price": lowest,
             "listing_count": stats.get("listing_count"),
             "note": (f"avg ${stats.get('average_price')}, "
                      f"median ${stats.get('median_price')}, "
@@ -82,9 +113,19 @@ def snapshot():
             "listing_url": event.get("url"),
         })
     print(f"Logged SeatGeek snapshot at {captured_at}: "
-          f"${lowest} get-in, {stats.get('listing_count')} listings")
+          f"${lowest:.2f} get-in, {stats.get('listing_count')} listings")
     print(f"Event: {event.get('title')} - {event.get('datetime_local')}")
+
+    is_new_low = prev_low is None or lowest < prev_low
+    if is_new_low and lowest <= threshold:
+        delta = f" (was ${prev_low:.2f})" if prev_low is not None else ""
+        msg = f"Get-in ${lowest:.2f}{delta}. {stats.get('listing_count')} listings."
+        mac_notify(f"LSU vs LA Tech ticket drop - new low!", msg)
+        print(f"ALERT fired: new low at ${lowest:.2f} (under threshold ${threshold:.0f})")
+    elif is_new_low:
+        print(f"New all-time low (${lowest:.2f}), but above alert threshold ${threshold:.0f}.")
 
 
 if __name__ == "__main__":
     snapshot()
+
