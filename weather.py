@@ -1,6 +1,9 @@
 """National Weather Service forecast for Baton Rouge. Free, no API key.
 
-NWS uses a two-step lookup: lat/lon -> gridpoint URL -> forecast.
+NWS only forecasts ~7 days out, so before T-7 we just show the upcoming
+7-day BR forecast (helpful climate context). Once inside the window, we
+filter to days that bracket kickoff (Sep 11-13, 2026).
+
 Result is cached to disk so the dashboard doesn't hit NWS on every render.
 """
 import json
@@ -15,8 +18,7 @@ HEADERS = {"User-Agent": "LATechVsLSU-Dashboard (contact: localhost)"}
 
 BATON_ROUGE_LAT = 30.4515
 BATON_ROUGE_LON = -91.1871
-GAME_DATE = "2026-09-12"
-SHOW_WITHIN_DAYS = 10
+GAME_DAYS = {"2026-09-11", "2026-09-12", "2026-09-13"}
 
 
 def _fetch(url):
@@ -25,17 +27,19 @@ def _fetch(url):
         return json.load(r)
 
 
-def _days_until_game():
-    game = datetime.fromisoformat(GAME_DATE).replace(tzinfo=timezone.utc)
-    return (game - datetime.now(timezone.utc)).days
+def _normalize(p):
+    return {
+        "name": p.get("name"),
+        "short": p.get("shortForecast"),
+        "temp": f"{p.get('temperature')}{p.get('temperatureUnit', 'F')}",
+        "wind": f"{p.get('windSpeed', '')} {p.get('windDirection', '')}".strip(),
+        "icon": p.get("icon"),
+        "start": p.get("startTime", "")[:10],
+    }
 
 
 def forecast():
-    """Return a list of {name, short, temp, wind, icon} for game day +/- 1 day, or None."""
-    days_left = _days_until_game()
-    if days_left < 0 or days_left > SHOW_WITHIN_DAYS:
-        return None
-
+    """Return {mode, label, periods: [...]} where mode is 'game' or 'preview'."""
     if CACHE.exists() and time.time() - CACHE.stat().st_mtime < CACHE_TTL_SEC:
         try:
             return json.loads(CACHE.read_text())
@@ -44,22 +48,29 @@ def forecast():
 
     try:
         pt = _fetch(f"https://api.weather.gov/points/{BATON_ROUGE_LAT},{BATON_ROUGE_LON}")
-        fc_url = pt["properties"]["forecast"]
-        fc = _fetch(fc_url)
-        periods = fc["properties"]["periods"]
-        kept = []
-        for p in periods:
-            start = p.get("startTime", "")[:10]
-            if start in {GAME_DATE,
-                         "2026-09-11", "2026-09-13"}:
-                kept.append({
-                    "name": p.get("name"),
-                    "short": p.get("shortForecast"),
-                    "temp": f"{p.get('temperature')}{p.get('temperatureUnit', 'F')}",
-                    "wind": f"{p.get('windSpeed', '')} {p.get('windDirection', '')}".strip(),
-                    "icon": p.get("icon"),
-                })
-        CACHE.write_text(json.dumps(kept))
-        return kept
+        fc = _fetch(pt["properties"]["forecast"])
+        all_periods = [_normalize(p) for p in fc["properties"]["periods"]]
+
+        game_periods = [p for p in all_periods if p["start"] in GAME_DAYS]
+        if game_periods:
+            result = {
+                "mode": "game",
+                "label": "Game weekend forecast (Baton Rouge)",
+                "periods": game_periods,
+            }
+        else:
+            # Outside NWS window - show the next 7 days of BR weather as preview.
+            result = {
+                "mode": "preview",
+                "label": "Baton Rouge - next 7 days (game-day forecast available ~7 days before kickoff)",
+                "periods": all_periods[:7],
+            }
+        CACHE.write_text(json.dumps(result))
+        return result
     except Exception as e:
-        return [{"name": "Forecast unavailable", "short": str(e)[:80], "temp": "", "wind": "", "icon": None}]
+        return {
+            "mode": "error",
+            "label": "Weather unavailable",
+            "periods": [{"name": "NWS error", "short": str(e)[:80],
+                         "temp": "", "wind": "", "icon": None, "start": ""}],
+        }

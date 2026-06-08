@@ -29,8 +29,13 @@
   .countdown b { color: var(--gold); font-size: 18px; }
   .countdown .kickoff { color: #fff; font-weight: 600; }
   .countdown .network { color: var(--accent); }
+  .wx-label {
+    color: var(--ink-dim); font-size: 12px; text-transform: uppercase;
+    letter-spacing: .8px; margin-bottom: 8px;
+  }
   .weather-strip {
     display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px;
+    overflow-x: auto;
   }
   .weather-card {
     background: var(--panel); border: 1px solid #1f3358; border-radius: 10px;
@@ -102,9 +107,10 @@
 
 <main>
 
-{% if forecast %}
+{% if forecast and forecast.periods %}
+<div class="wx-label">{{ forecast.label }}</div>
 <div class="weather-strip">
-  {% for p in forecast %}
+  {% for p in forecast.periods %}
   <div class="weather-card">
     {% if p.icon %}<img src="{{ p.icon }}" alt="">{% endif %}
     <div>
