@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+prices.db
+.venv/
+venv/
+.DS_Store
