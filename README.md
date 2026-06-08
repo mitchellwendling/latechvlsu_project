@@ -42,4 +42,19 @@ python seed.py 2026-05-15T12:00:00+00:00
 
 ## Why no live ticket scraping?
 
-SeatGeek, StubHub, and Vivid Seats all block unauthenticated automated requests and require approved API keys for live data. The dashboard links you straight to each source so you can log the real number in two clicks. If you have a SeatGeek API client_id, wiring it into a new `tickets_seatgeek.py` fetcher is the natural extension.
+SeatGeek, StubHub, and Vivid Seats all block unauthenticated automated requests and require approved API keys for live data. The dashboard links you straight to each source so you can log the real number in two clicks.
+
+### Live SeatGeek prices (optional, recommended)
+
+SeatGeek has a free public API. Wire it up once and you get live get-in prices:
+
+```bash
+# 1. Sign up at https://seatgeek.com/account/develop and grab a Client ID.
+# 2. Stash it (or put it in your shell rc file):
+export SEATGEEK_CLIENT_ID=your_client_id_here
+
+# 3. Run anytime to log a fresh snapshot:
+python3 tickets_seatgeek.py
+```
+
+The dashboard picks it up automatically. Re-run before each browser refresh, or wrap it in a cron job.
