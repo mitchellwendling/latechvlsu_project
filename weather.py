@@ -59,11 +59,13 @@ def forecast():
                 "periods": game_periods,
             }
         else:
-            # Outside NWS window - show the next 7 days of BR weather as preview.
+            # Outside NWS window - daytime-only preview so they fit on one row.
+            daytime = [p for p in all_periods
+                       if p.get("name") and "night" not in p["name"].lower()]
             result = {
                 "mode": "preview",
                 "label": "Baton Rouge - next 7 days (game-day forecast available ~7 days before kickoff)",
-                "periods": all_periods[:7],
+                "periods": daytime[:7],
             }
         CACHE.write_text(json.dumps(result))
         return result
