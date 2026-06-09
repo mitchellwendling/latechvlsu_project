@@ -64,8 +64,8 @@ def forecast():
                        if p.get("name") and "night" not in p["name"].lower()]
             result = {
                 "mode": "preview",
-                "label": "Baton Rouge - next 7 days (game-day forecast available ~7 days before kickoff)",
-                "periods": daytime[:7],
+                "label": "Baton Rouge - next 5 days (game-day forecast available ~7 days before kickoff)",
+                "periods": daytime[:5],
             }
         CACHE.write_text(json.dumps(result))
         return result
