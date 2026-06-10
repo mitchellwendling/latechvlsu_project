@@ -24,9 +24,11 @@
     <string>/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
+  <!-- Run every 6 hours -->
   <key>StartInterval</key>
   <integer>21600</integer>
 
+  <!-- Also run once when loaded -->
   <key>RunAtLoad</key>
   <true/>
 
