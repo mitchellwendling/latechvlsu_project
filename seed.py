@@ -23,38 +23,38 @@ def haversine_miles(lat1, lon1, lat2, lon2):
     return round(2 * r * math.asin(math.sqrt(a)), 2)
 
 
-# Captured 2026-06-08 via Expedia search_flights (CVG->BTR 9/11-9/13, 1 adult).
+# Captured 2026-06-10 via Expedia search_flights (CVG->BTR 9/11-9/13, 1 adult).
 FLIGHTS = [
     {"airline": "United", "stops": 1, "out_depart": "2026-09-11 5:14 PM",
      "out_arrive": "2026-09-11 9:28 PM", "ret_depart": "2026-09-13 6:14 PM",
      "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "5h 14m",
      "duration_ret": "4h 45m", "layover_out": "1h 23m IAH",
-     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 318.40},
+     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 308.40},
     {"airline": "United", "stops": 1, "out_depart": "2026-09-11 6:35 AM",
      "out_arrive": "2026-09-11 11:13 AM", "ret_depart": "2026-09-13 6:14 PM",
      "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "5h 38m",
      "duration_ret": "4h 45m", "layover_out": "1h 48m IAH",
-     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 344.20},
+     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 340.27},
     {"airline": "American", "stops": 1, "out_depart": "2026-09-11 1:12 PM",
      "out_arrive": "2026-09-11 4:58 PM", "ret_depart": "2026-09-13 5:56 AM",
      "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "4h 46m",
      "duration_ret": "7h 18m", "layover_out": "1h 1m CLT",
-     "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 387.40},
+     "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 383.40},
     {"airline": "American", "stops": 1, "out_depart": "2026-09-11 6:00 AM",
      "out_arrive": "2026-09-11 10:51 AM", "ret_depart": "2026-09-13 5:56 AM",
      "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "5h 51m",
      "duration_ret": "7h 18m", "layover_out": "1h 48m DFW",
-     "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 387.40},
+     "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 383.40},
     {"airline": "United", "stops": 1, "out_depart": "2026-09-11 5:14 PM",
      "out_arrive": "2026-09-11 9:28 PM", "ret_depart": "2026-09-13 4:10 PM",
      "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "5h 14m",
      "duration_ret": "6h 49m", "layover_out": "1h 23m IAH",
-     "layover_ret": "2h 48m IAH", "fare_name": "Basic Economy", "total_price": 411.00},
-    {"airline": "American", "stops": 1, "out_depart": "2026-09-11 11:50 AM",
-     "out_arrive": "2026-09-11 4:54 PM", "ret_depart": "2026-09-13 5:56 AM",
-     "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "6h 4m",
-     "duration_ret": "7h 18m", "layover_out": "2h 16m DFW",
-     "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 432.40},
+     "layover_ret": "2h 48m IAH", "fare_name": "Basic Economy", "total_price": 404.92},
+    {"airline": "American", "stops": 1, "out_depart": "2026-09-11 1:12 PM",
+     "out_arrive": "2026-09-11 4:58 PM", "ret_depart": "2026-09-13 8:15 AM",
+     "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "4h 46m",
+     "duration_ret": "4h 59m", "layover_out": "1h 1m CLT",
+     "layover_ret": "57m DFW", "fare_name": "Basic Economy", "total_price": 407.40},
 ]
 
 # Captured 2026-06-08 via Expedia search_hotels, Marriott-brand properties only.
@@ -103,24 +103,41 @@ TICKETS = [
 ]
 
 
-def run(captured_at=None):
+ALL_DATASETS = ("flights", "hotels", "tickets")
+
+
+def run(datasets=ALL_DATASETS, captured_at=None):
     captured_at = captured_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
     init_db()
+    counts = []
     with conn() as c:
-        for f in FLIGHTS:
-            insert_flight(c, captured_at, f)
-        for h in HOTELS:
-            h = dict(h)
-            h["distance_to_stadium_mi"] = haversine_miles(
-                h["latitude"], h["longitude"], STADIUM_LAT, STADIUM_LON
-            )
-            insert_hotel(c, captured_at, h)
-        for t in TICKETS:
-            insert_ticket(c, captured_at, t)
-    print(f"Seeded snapshot at {captured_at}: "
-          f"{len(FLIGHTS)} flights, {len(HOTELS)} hotels, {len(TICKETS)} ticket sources")
+        if "flights" in datasets:
+            for f in FLIGHTS:
+                insert_flight(c, captured_at, f)
+            counts.append(f"{len(FLIGHTS)} flights")
+        if "hotels" in datasets:
+            for h in HOTELS:
+                h = dict(h)
+                h["distance_to_stadium_mi"] = haversine_miles(
+                    h["latitude"], h["longitude"], STADIUM_LAT, STADIUM_LON
+                )
+                insert_hotel(c, captured_at, h)
+            counts.append(f"{len(HOTELS)} hotels")
+        if "tickets" in datasets:
+            for t in TICKETS:
+                insert_ticket(c, captured_at, t)
+            counts.append(f"{len(TICKETS)} ticket sources")
+    print(f"Seeded snapshot at {captured_at}: {', '.join(counts)}")
 
 
 if __name__ == "__main__":
-    # Optional: pass an ISO timestamp to backdate a snapshot for testing history charts.
-    run(sys.argv[1] if len(sys.argv) > 1 else None)
+    # Usage: python3 seed.py [flights] [hotels] [tickets]
+    # No args = seed everything.
+    args = [a.lower() for a in sys.argv[1:]]
+    chosen = [d for d in ALL_DATASETS if d in args] or ALL_DATASETS
+    bad = [a for a in args if a not in ALL_DATASETS]
+    if bad:
+        print(f"Unknown dataset(s): {', '.join(bad)}. "
+              f"Valid options: {', '.join(ALL_DATASETS)}", file=sys.stderr)
+        sys.exit(1)
+    run(chosen)
