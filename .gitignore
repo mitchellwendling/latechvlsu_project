@@ -7,3 +7,5 @@ venv/
 .cache_*.json
 .seatgeek.out.log
 .seatgeek.err.log
+.flights.out.log
+.flights.err.log

@@ -3,12 +3,12 @@
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>com.user.latechvlsu.seatgeek</string>
+  <string>com.user.latechvlsu.flights</string>
 
   <key>ProgramArguments</key>
   <array>
     <string>/usr/local/bin/python3</string>
-    <string>__PROJECT_DIR__/tickets_seatgeek.py</string>
+    <string>__PROJECT_DIR__/flights_amadeus.py</string>
   </array>
 
   <key>WorkingDirectory</key>
@@ -16,23 +16,24 @@
 
   <key>EnvironmentVariables</key>
   <dict>
-    <key>SEATGEEK_CLIENT_ID</key>
-    <string>__SEATGEEK_CLIENT_ID__</string>
-    <key>PRICE_ALERT_THRESHOLD</key>
-    <string>50</string>
+    <key>AMADEUS_API_KEY</key>
+    <string>__AMADEUS_API_KEY__</string>
+    <key>AMADEUS_API_SECRET</key>
+    <string>__AMADEUS_API_SECRET__</string>
     <key>PATH</key>
     <string>/usr/local/bin:/usr/bin:/bin</string>
   </dict>
 
+  <!-- Run every 12 hours (flights don't change as fast as tickets) -->
   <key>StartInterval</key>
-  <integer>21600</integer>
+  <integer>43200</integer>
 
   <key>RunAtLoad</key>
   <true/>
 
   <key>StandardOutPath</key>
-  <string>__PROJECT_DIR__/.seatgeek.out.log</string>
+  <string>__PROJECT_DIR__/.flights.out.log</string>
   <key>StandardErrorPath</key>
-  <string>__PROJECT_DIR__/.seatgeek.err.log</string>
+  <string>__PROJECT_DIR__/.flights.err.log</string>
 </dict>
 </plist>
