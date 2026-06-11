@@ -4,34 +4,117 @@
 <meta charset="utf-8">
 <title>Baton Rouge Trip Dashboard — LA Tech @ LSU</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    /* LA Tech Bulldogs - Columbia Blue + Red */
-    --bg: #0c1a2e; --panel: #142a48; --panel2: #1b3760;
-    --ink: #f1f4f9; --ink-dim: #9ab0cc;
-    --gold: #e8333a; --purple: #003087; --accent: #6cace4;
+    /* LA Tech Bulldogs - Columbia Blue + Red (dominant) */
+    --bg: #08152a; --panel: #122849; --panel2: #1a3661;
+    --ink: #f1f4f9; --ink-dim: #94a8c6; --ink-dimmer: #5e7393;
+    --tech-red: #e8333a; --tech-red-dk: #b3232a;
+    --tech-blue: #6cace4; --tech-navy: #003087;
+    /* LSU (only used in matchup mark) */
+    --lsu-purple: #461d7c; --lsu-gold: #fdd023;
+    /* Aliases for legacy class refs */
+    --gold: var(--tech-red); --purple: var(--tech-navy); --accent: var(--tech-blue);
     --good: #4cd29a; --bad: #ff7a7a; --warn: #ffb84d;
+    --border: #1f3358;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; font: 15px/1.45 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
-    background: var(--bg); color: var(--ink);
+    margin: 0; font: 15px/1.5 'Inter', -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(232,51,58,0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(0,48,135,0.40), transparent 60%),
+      var(--bg);
+    color: var(--ink); min-height: 100vh;
   }
-  header {
-    padding: 20px 28px; background: linear-gradient(90deg, var(--purple), #001a4d);
-    border-bottom: 3px solid var(--gold);
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  .display { font-family: 'Oswald', 'Inter', sans-serif; font-weight: 600; letter-spacing: .5px; }
+
+  /* === Hero scoreboard === */
+  header.hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #051028 0%, var(--tech-navy) 55%, #051028 100%);
+    border-bottom: 3px solid var(--tech-red);
+    padding: 24px 28px 22px;
   }
-  header h1 { margin: 0; font-size: 22px; letter-spacing: .3px; }
-  header h1 span { color: var(--gold); }
-  .countdown { font-size: 14px; color: var(--ink-dim); text-align: right; }
-  .countdown b { color: var(--gold); font-size: 18px; }
-  .countdown .kickoff { color: #fff; font-weight: 600; }
-  .countdown .network { color: var(--accent); }
+  header.hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      135deg, rgba(255,255,255,0.025) 0 12px, transparent 12px 24px);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative; max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center;
+  }
+  .matchup { display: flex; align-items: center; gap: 14px; }
+  .matchup.right { justify-content: flex-end; }
+  .badge {
+    width: 64px; height: 64px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center;
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 22px;
+    letter-spacing: 1px; flex-shrink: 0;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4), inset 0 0 0 3px rgba(255,255,255,0.15);
+  }
+  .badge.tech { background: var(--tech-red); color: #fff; border: 3px solid #fff; }
+  .badge.lsu  { background: var(--lsu-purple); color: var(--lsu-gold); border: 3px solid var(--lsu-gold); }
+  .team-name { font-family: 'Oswald', sans-serif; }
+  .team-name .full { font-size: 18px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1; }
+  .team-name .sub  { font-size: 11px; color: var(--ink-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+  .matchup.right .team-name { text-align: right; }
+
+  .at-mark {
+    font-family: 'Oswald', sans-serif; font-weight: 600;
+    font-size: 32px; color: var(--ink-dimmer);
+    text-align: center; line-height: 1;
+  }
+  .at-mark .vs {
+    display: block; font-size: 11px; color: var(--ink-dim);
+    letter-spacing: 4px; margin-bottom: 4px;
+  }
+
+  .scoreboard {
+    margin-top: 18px; position: relative;
+    background: rgba(8,21,42,0.6); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 12px 18px;
+    display: flex; flex-wrap: wrap; gap: 18px; align-items: center;
+    justify-content: space-between;
+  }
+  .scoreboard .meta {
+    font-size: 12px; color: var(--ink-dim); letter-spacing: 1px; text-transform: uppercase;
+  }
+  .scoreboard .meta b { color: #fff; font-weight: 600; }
+  .scoreboard .network { color: var(--tech-blue); font-weight: 600; }
+  .countdown-clock {
+    display: flex; gap: 8px; align-items: stretch;
+  }
+  .clock-cell {
+    background: var(--tech-red); color: #fff;
+    min-width: 54px; padding: 8px 10px; border-radius: 6px; text-align: center;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  .clock-cell .n {
+    font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .clock-cell .l {
+    font-size: 9px; letter-spacing: 1.5px; opacity: .9; margin-top: 4px; text-transform: uppercase;
+  }
+  @media (max-width: 720px) {
+    .hero-inner { grid-template-columns: 1fr; text-align: center; }
+    .matchup, .matchup.right { justify-content: center; }
+    .matchup.right .team-name { text-align: center; }
+    .at-mark { font-size: 24px; }
+    .scoreboard { justify-content: center; }
+  }
+
   .wx-label {
-    color: var(--ink-dim); font-size: 12px; text-transform: uppercase;
-    letter-spacing: .8px; margin-bottom: 8px;
+    color: var(--ink-dim); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1.2px; margin-bottom: 8px;
+    font-family: 'Oswald', sans-serif; font-weight: 500;
   }
   .weather-strip {
     display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -56,62 +139,162 @@
     overflow: hidden;
   }
   .weather-card .wx-wind { color: var(--ink-dim); font-size: 10px; margin-top: 2px; }
-  main { padding: 20px 28px 60px; max-width: 1280px; margin: 0 auto; }
-  .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  main { padding: 24px 28px 60px; max-width: 1280px; margin: 0 auto; }
+
+  .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 26px; }
   .stat {
-    background: var(--panel); border: 1px solid #1f3358; border-radius: 10px;
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg, var(--panel) 0%, var(--panel2) 100%);
+    border: 1px solid var(--border); border-radius: 12px;
     padding: 16px 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
   }
-  .stat .label { color: var(--ink-dim); font-size: 12px; text-transform: uppercase; letter-spacing: .8px; }
-  .stat .value { font-size: 28px; font-weight: 700; margin-top: 4px; color: var(--gold); }
-  .stat .sub { font-size: 12px; color: var(--ink-dim); margin-top: 4px; }
+  .stat::after {
+    content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--tech-red);
+  }
+  .stat .stat-head { display: flex; align-items: center; gap: 8px; }
+  .stat .icon {
+    width: 22px; height: 22px; color: var(--tech-blue); flex-shrink: 0;
+  }
+  .stat .label {
+    color: var(--ink-dim); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1.2px; font-family: 'Oswald', sans-serif; font-weight: 500;
+  }
+  .stat .value {
+    font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700;
+    margin-top: 6px; color: #fff; font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .stat .value .dollar { color: var(--tech-red); margin-right: 2px; }
+  .stat .sub { font-size: 12px; color: var(--ink-dim); margin-top: 6px; }
+
   section {
-    background: var(--panel); border: 1px solid #1f3358; border-radius: 12px;
-    padding: 20px 22px; margin-bottom: 22px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px 24px; margin-bottom: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
   }
   section h2 {
-    margin: 0 0 4px; font-size: 18px; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;
+    font-family: 'Oswald', sans-serif; font-weight: 600;
+    margin: 0 0 6px; font-size: 20px; letter-spacing: 1px; text-transform: uppercase;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px;
+    padding-left: 12px; border-left: 4px solid var(--tech-red);
   }
-  section h2 .ts { color: var(--ink-dim); font-size: 12px; font-weight: 400; }
-  section .desc { color: var(--ink-dim); font-size: 13px; margin: 0 0 14px; }
+  section h2 .ts {
+    color: var(--ink-dimmer); font-size: 11px; font-weight: 400; letter-spacing: .5px;
+    text-transform: none; font-family: 'Inter', sans-serif;
+  }
+  section .desc { color: var(--ink-dim); font-size: 13px; margin: 4px 0 16px; padding-left: 16px; }
+
   table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #1f3358; vertical-align: top; }
-  th { color: var(--ink-dim); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: .6px; }
+  th, td { text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th {
+    color: var(--ink-dim); font-weight: 600; text-transform: uppercase;
+    font-size: 10px; letter-spacing: 1.2px;
+    font-family: 'Oswald', sans-serif;
+  }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: rgba(108,172,228,0.05); }
   tr:last-child td { border-bottom: 0; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  td.price { font-weight: 700; color: var(--gold); }
-  td a { color: var(--accent); text-decoration: none; }
+  td.price {
+    font-family: 'Oswald', sans-serif; font-weight: 700; color: var(--tech-red); font-size: 15px;
+  }
+  td a { color: var(--tech-blue); text-decoration: none; }
   td a:hover { text-decoration: underline; }
-  .chart-wrap { background: var(--panel2); border-radius: 8px; padding: 12px; margin-top: 14px; height: 260px; }
-  details.add { margin-top: 14px; background: var(--panel2); border-radius: 8px; padding: 10px 14px; }
-  details.add summary { cursor: pointer; color: var(--accent); font-size: 13px; }
+
+  .chart-wrap {
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; margin-top: 16px; height: 260px;
+  }
+  details.add {
+    margin-top: 16px; background: var(--panel2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+  }
+  details.add summary { cursor: pointer; color: var(--tech-blue); font-size: 13px; font-weight: 500; }
+  details.add summary:hover { color: #fff; }
   details.add form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
-  details.add label { display: flex; flex-direction: column; font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: .5px; }
-  details.add input { margin-top: 4px; padding: 7px 9px; background: #0a1626; border: 1px solid #2a3f6b; border-radius: 6px; color: var(--ink); font-size: 13px; }
-  details.add button { grid-column: 1 / -1; padding: 9px 14px; background: var(--gold); color: #1a1a1a; border: 0; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
+  details.add label {
+    display: flex; flex-direction: column; font-size: 10px;
+    color: var(--ink-dim); text-transform: uppercase; letter-spacing: 1px;
+    font-family: 'Oswald', sans-serif;
+  }
+  details.add input {
+    margin-top: 4px; padding: 8px 10px; background: #0a1626;
+    border: 1px solid #2a3f6b; border-radius: 6px; color: var(--ink); font-size: 13px;
+    font-family: 'Inter', sans-serif;
+  }
+  details.add input:focus { outline: 0; border-color: var(--tech-red); }
+  details.add button {
+    grid-column: 1 / -1; padding: 10px 14px;
+    background: var(--tech-red); color: #fff; border: 0; border-radius: 6px;
+    font-family: 'Oswald', sans-serif; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer; font-size: 13px;
+    transition: background 0.15s;
+  }
+  details.add button:hover { background: var(--tech-red-dk); }
+
   .ticket-sources { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
   .ticket-sources a {
-    background: var(--panel2); padding: 6px 12px; border-radius: 16px;
-    color: var(--accent); text-decoration: none; font-size: 12px; border: 1px solid #2a3f6b;
+    background: var(--panel2); padding: 7px 14px; border-radius: 16px;
+    color: var(--tech-blue); text-decoration: none; font-size: 12px;
+    border: 1px solid #2a3f6b; font-weight: 500; transition: all 0.15s;
   }
-  .ticket-sources a:hover { background: #1f3358; }
+  .ticket-sources a:hover { background: var(--tech-red); color: #fff; border-color: var(--tech-red); }
+
   .empty { color: var(--ink-dim); font-style: italic; padding: 12px 0; }
-  .pill { display: inline-block; background: #2a3f6b; padding: 2px 8px; border-radius: 10px; font-size: 11px; color: var(--ink-dim); }
-  footer { text-align: center; color: var(--ink-dim); font-size: 12px; padding: 20px; }
+  .pill {
+    display: inline-block; background: rgba(108,172,228,0.12);
+    padding: 2px 8px; border-radius: 10px; font-size: 11px; color: var(--tech-blue);
+    border: 1px solid rgba(108,172,228,0.2);
+  }
+  footer {
+    text-align: center; color: var(--ink-dimmer); font-size: 12px; padding: 24px;
+    border-top: 1px solid var(--border); margin-top: 20px;
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>{{ trip.name }} <span>•</span> Baton Rouge Trip Dashboard</h1>
-  <div class="countdown">
-    {{ trip.game_date }} at {{ trip.venue }}<br>
-    {% if game and game.kickoff %}
-      <span class="kickoff">Kickoff {{ game.kickoff[:16].replace('T', ' ') }} UTC</span>
-      {% if game.network and game.network != 'TBA' %}
-        &nbsp;•&nbsp;<span class="network">{{ game.network }}</span>
-      {% endif %}<br>
-    {% endif %}
-    <b>{{ days_left }}</b> days to kickoff
+<header class="hero">
+  <div class="hero-inner">
+    <div class="matchup">
+      <div class="badge tech">LT</div>
+      <div class="team-name">
+        <div class="full">Louisiana Tech</div>
+        <div class="sub">Bulldogs</div>
+      </div>
+    </div>
+    <div class="at-mark">
+      <span class="vs">SEPT 12</span>
+      @
+    </div>
+    <div class="matchup right">
+      <div class="team-name">
+        <div class="full">LSU</div>
+        <div class="sub">Tigers</div>
+      </div>
+      <div class="badge lsu">LSU</div>
+    </div>
+  </div>
+
+  <div class="scoreboard">
+    <div class="meta">
+      <b>{{ trip.venue }}</b>
+      {% if game and game.kickoff %}
+        &nbsp;•&nbsp; Kickoff <b>{{ game.kickoff[:16].replace('T', ' ') }} UTC</b>
+        {% if game.network and game.network != 'TBA' %}
+          &nbsp;•&nbsp; <span class="network">{{ game.network }}</span>
+        {% endif %}
+      {% else %}
+        &nbsp;•&nbsp; Kickoff time TBA
+      {% endif %}
+    </div>
+    <div class="countdown-clock" data-game="{{ trip.game_date }}T00:00:00Z">
+      <div class="clock-cell"><div class="n" id="cd-d">{{ days_left }}</div><div class="l">Days</div></div>
+      <div class="clock-cell"><div class="n" id="cd-h">--</div><div class="l">Hrs</div></div>
+      <div class="clock-cell"><div class="n" id="cd-m">--</div><div class="l">Min</div></div>
+      <div class="clock-cell"><div class="n" id="cd-s">--</div><div class="l">Sec</div></div>
+    </div>
   </div>
 </header>
 
@@ -136,25 +319,37 @@
 
 <div class="top-stats">
   <div class="stat">
-    <div class="label">Cheapest Flight (RT)</div>
-    <div class="value">{% if cheapest_flight %}${{ "%.0f"|format(cheapest_flight) }}{% else %}—{% endif %}</div>
+    <div class="stat-head">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+      <span class="label">Cheapest Flight (RT)</span>
+    </div>
+    <div class="value">{% if cheapest_flight %}<span class="dollar">$</span>{{ "%.0f"|format(cheapest_flight) }}{% else %}—{% endif %}</div>
     <div class="sub">CVG → BTR, {{ trip.depart_date }} – {{ trip.return_date }}</div>
   </div>
   <div class="stat">
-    <div class="label">Cheapest Marriott / night</div>
-    <div class="value">{% if cheapest_hotel %}${{ "%.0f"|format(cheapest_hotel) }}{% else %}—{% endif %}</div>
+    <div class="stat-head">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+      <span class="label">Cheapest Marriott / night</span>
+    </div>
+    <div class="value">{% if cheapest_hotel %}<span class="dollar">$</span>{{ "%.0f"|format(cheapest_hotel) }}{% else %}—{% endif %}</div>
     <div class="sub">Near Tiger Stadium</div>
   </div>
   <div class="stat">
-    <div class="label">Cheapest Ticket (get-in)</div>
-    <div class="value">{% if cheapest_ticket %}${{ "%.0f"|format(cheapest_ticket) }}{% else %}—{% endif %}</div>
+    <div class="stat-head">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+      <span class="label">Cheapest Ticket (get-in)</span>
+    </div>
+    <div class="value">{% if cheapest_ticket %}<span class="dollar">$</span>{{ "%.0f"|format(cheapest_ticket) }}{% else %}—{% endif %}</div>
     <div class="sub">{{ trip.kickoff_note }}</div>
   </div>
   <div class="stat">
-    <div class="label">Est. Total Trip Floor</div>
+    <div class="stat-head">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span class="label">Est. Total Trip Floor</span>
+    </div>
     <div class="value">
       {% if cheapest_flight and cheapest_hotel and cheapest_ticket %}
-        ${{ "%.0f"|format(cheapest_flight + cheapest_hotel * 2 + cheapest_ticket) }}
+        <span class="dollar">$</span>{{ "%.0f"|format(cheapest_flight + cheapest_hotel * 2 + cheapest_ticket) }}
       {% else %}—{% endif %}
     </div>
     <div class="sub">Flight + 2 nights + 1 ticket</div>
@@ -314,6 +509,34 @@
 </main>
 
 <script>
+// Live ticking countdown to kickoff (game date assumed midnight UTC; close enough at this distance).
+(function () {
+  const target = new Date(document.querySelector('.countdown-clock').dataset.game).getTime();
+  const els = {
+    d: document.getElementById('cd-d'),
+    h: document.getElementById('cd-h'),
+    m: document.getElementById('cd-m'),
+    s: document.getElementById('cd-s'),
+  };
+  function tick() {
+    const diff = target - Date.now();
+    if (diff <= 0) {
+      els.d.textContent = els.h.textContent = els.m.textContent = els.s.textContent = '0';
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    els.d.textContent = d;
+    els.h.textContent = String(h).padStart(2, '0');
+    els.m.textContent = String(m).padStart(2, '0');
+    els.s.textContent = String(s).padStart(2, '0');
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
 const COLORS = ['#e8333a', '#6cace4', '#4cd29a', '#ffb84d', '#c084fc', '#22d3ee', '#f1f4f9'];
 const baseOpts = {
   responsive: true, maintainAspectRatio: false,
