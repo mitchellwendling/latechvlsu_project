@@ -1,4 +1,4 @@
-"""Seed the price database with a real snapshot captured 2026-06-08
+"""Seed the price database with a real snapshot captured 2026-06-12
 from Expedia (flights + Marriott hotels) and reasonable ticket estimates.
 
 Rerun this script anytime to append a new snapshot - history accumulates
@@ -23,7 +23,7 @@ def haversine_miles(lat1, lon1, lat2, lon2):
     return round(2 * r * math.asin(math.sqrt(a)), 2)
 
 
-# Captured 2026-06-10 via Expedia search_flights (CVG->BTR 9/11-9/13, 1 adult).
+# Captured 2026-06-12 via Expedia search_flights (CVG->BTR 9/11-9/13, 1 adult).
 FLIGHTS = [
     {"airline": "United", "stops": 1, "out_depart": "2026-09-11 5:14 PM",
      "out_arrive": "2026-09-11 9:28 PM", "ret_depart": "2026-09-13 6:14 PM",
@@ -34,7 +34,17 @@ FLIGHTS = [
      "out_arrive": "2026-09-11 11:13 AM", "ret_depart": "2026-09-13 6:14 PM",
      "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "5h 38m",
      "duration_ret": "4h 45m", "layover_out": "1h 48m IAH",
-     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 340.27},
+     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 308.40},
+    {"airline": "United", "stops": 2, "out_depart": "2026-09-11 10:22 AM",
+     "out_arrive": "2026-09-11 5:33 PM", "ret_depart": "2026-09-13 6:14 PM",
+     "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "8h 11m",
+     "duration_ret": "4h 45m", "layover_out": "53m IAD, 1h 15m IAH",
+     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 328.71},
+    {"airline": "United", "stops": 2, "out_depart": "2026-09-11 11:17 AM",
+     "out_arrive": "2026-09-11 5:33 PM", "ret_depart": "2026-09-13 6:14 PM",
+     "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "7h 16m",
+     "duration_ret": "4h 45m", "layover_out": "55m ORD, 40m IAH",
+     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 358.70},
     {"airline": "American", "stops": 1, "out_depart": "2026-09-11 1:12 PM",
      "out_arrive": "2026-09-11 4:58 PM", "ret_depart": "2026-09-13 5:56 AM",
      "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "4h 46m",
@@ -45,44 +55,46 @@ FLIGHTS = [
      "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "5h 51m",
      "duration_ret": "7h 18m", "layover_out": "1h 48m DFW",
      "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 383.40},
-    {"airline": "United", "stops": 1, "out_depart": "2026-09-11 5:14 PM",
-     "out_arrive": "2026-09-11 9:28 PM", "ret_depart": "2026-09-13 4:10 PM",
-     "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "5h 14m",
-     "duration_ret": "6h 49m", "layover_out": "1h 23m IAH",
-     "layover_ret": "2h 48m IAH", "fare_name": "Basic Economy", "total_price": 404.92},
-    {"airline": "American", "stops": 1, "out_depart": "2026-09-11 1:12 PM",
-     "out_arrive": "2026-09-11 4:58 PM", "ret_depart": "2026-09-13 8:15 AM",
-     "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "4h 46m",
-     "duration_ret": "4h 59m", "layover_out": "1h 1m CLT",
-     "layover_ret": "57m DFW", "fare_name": "Basic Economy", "total_price": 407.40},
 ]
 
-# Captured 2026-06-08 via Expedia search_hotels, Marriott-brand properties only.
+# Captured 2026-06-12 via Expedia search_hotels, Marriott-brand properties only.
 HOTELS = [
     {"hotel_id": "23356809",
      "hotel_name": "Courtyard by Marriott Baton Rouge Downtown",
-     "star_rating": 3.0, "guest_rating": 8.8, "review_count": 627,
+     "star_rating": 3.0, "guest_rating": 8.8, "review_count": 629,
      "avg_nightly_price": 258, "total_price": 622,
      "latitude": 30.449163, "longitude": -91.188032,
      "booking_url": "https://www.expedia.com/.h23356809.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
     {"hotel_id": "1668442",
      "hotel_name": "Residence Inn by Marriott Baton Rouge near LSU",
      "star_rating": 3.0, "guest_rating": 8.8, "review_count": 288,
-     "avg_nightly_price": 232, "total_price": 539,
+     "avg_nightly_price": 239, "total_price": 557,
      "latitude": 30.430536, "longitude": -91.117408,
      "booking_url": "https://www.expedia.com/.h1668442.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
     {"hotel_id": "66087376",
      "hotel_name": "Element by Marriott Baton Rouge South",
-     "star_rating": 3.0, "guest_rating": 9.2, "review_count": 451,
-     "avg_nightly_price": 229, "total_price": 534,
+     "star_rating": 3.0, "guest_rating": 9.2, "review_count": 452,
+     "avg_nightly_price": 199, "total_price": 464,
      "latitude": 30.397511, "longitude": -91.095729,
      "booking_url": "https://www.expedia.com/.h66087376.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
+    {"hotel_id": "526461",
+     "hotel_name": "TownePlace Suites by Marriott Baton Rouge South",
+     "star_rating": 3.0, "guest_rating": 8.2, "review_count": 1008,
+     "avg_nightly_price": 233, "total_price": 543,
+     "latitude": 30.39656, "longitude": -91.0954,
+     "booking_url": "https://www.expedia.com/.h526461.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
     {"hotel_id": "2780250",
      "hotel_name": "SpringHill Suites by Marriott Baton Rouge North/Airport",
-     "star_rating": 3.0, "guest_rating": 8.8, "review_count": 1013,
+     "star_rating": 3.0, "guest_rating": 8.8, "review_count": 1024,
      "avg_nightly_price": 116, "total_price": 271,
      "latitude": 30.521, "longitude": -91.156784,
      "booking_url": "https://www.expedia.com/.h2780250.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
+    {"hotel_id": "4406449",
+     "hotel_name": "Renaissance Baton Rouge Hotel",
+     "star_rating": 4.0, "guest_rating": 9.2, "review_count": 1016,
+     "avg_nightly_price": 395, "total_price": 944,
+     "latitude": 30.38727, "longitude": -91.09388,
+     "booking_url": "https://www.expedia.com/.h4406449.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
 ]
 
 # Estimated ticket "get-in" prices for LSU vs LA Tech (non-conference, early season).
