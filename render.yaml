@@ -8,3 +8,14 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.3
+
+  - type: web
+    name: marathon-month-tracker
+    runtime: python
+    plan: free
+    rootDir: marathon_tracker
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
