@@ -14,6 +14,7 @@ from db import (
 from challenge import CHALLENGE, GOALS, ACTIVITIES
 
 app = Flask(__name__)
+init_db()
 
 GOALS_BY_KEY = {g["key"]: g for g in GOALS}
 
@@ -116,5 +117,4 @@ def delete_run(log_id):
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(host="0.0.0.0", port=5051, debug=True)
