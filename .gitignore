@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 prices.db
+marathon_tracker/marathon.db
 .venv/
 venv/
 .DS_Store
