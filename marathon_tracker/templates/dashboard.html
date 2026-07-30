@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Marathon Month Mileage Tracker</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0d0f; --panel: #1a1a1d; --panel2: #232327;
+    --ink: #f5f5f5; --ink-dim: #a3a3a8; --ink-dimmer: #6b6b70;
+    --accent: #ff6a1a; --accent-dk: #cc5511;
+    --good: #4cd29a; --warn: #ffb84d; --border: #2c2c31;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font: 15px/1.5 'Inter', -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    background:
+      radial-gradient(1000px 500px at 85% -10%, rgba(255,106,26,0.14), transparent 60%),
+      var(--bg);
+    color: var(--ink); min-height: 100vh;
+  }
+  .display { font-family: 'Oswald', 'Inter', sans-serif; font-weight: 600; letter-spacing: .5px; }
+
+  header.hero {
+    background: linear-gradient(135deg, #1a1006 0%, #2a1204 60%, #1a1006 100%);
+    border-bottom: 3px solid var(--accent);
+    padding: 26px 28px 22px;
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; }
+  .hero-inner h1 {
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px;
+    letter-spacing: .5px; margin: 0; text-transform: uppercase;
+  }
+  .hero-inner .sub { color: var(--ink-dim); font-size: 13px; margin-top: 6px; }
+  .hero-inner .sub b { color: var(--accent); font-weight: 600; }
+
+  main { padding: 24px 28px 60px; max-width: 1100px; margin: 0 auto; }
+
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px 24px; margin-bottom: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  section h2 {
+    font-family: 'Oswald', sans-serif; font-weight: 600;
+    margin: 0 0 14px; font-size: 19px; letter-spacing: 1px; text-transform: uppercase;
+    padding-left: 12px; border-left: 4px solid var(--accent);
+  }
+
+  /* goal picker */
+  .goal-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .goal-card {
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; text-align: center;
+  }
+  .goal-card .g-label {
+    font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 16px;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .goal-card .g-miles {
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px;
+    color: var(--accent); margin: 8px 0; font-variant-numeric: tabular-nums;
+  }
+  .goal-card button {
+    width: 100%; padding: 10px 12px; background: var(--accent); color: #fff; border: 0;
+    border-radius: 6px; font-family: 'Oswald', sans-serif; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-size: 12px;
+    transition: background .15s;
+  }
+  .goal-card button:hover { background: var(--accent-dk); }
+
+  .current-goal { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .current-goal .g-name { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px; color: var(--accent); }
+  .change-goal-form { display: flex; gap: 8px; align-items: center; }
+  .change-goal-form select, .change-goal-form button {
+    padding: 7px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: #0f0f11; color: var(--ink); font-size: 12px;
+  }
+  .change-goal-form button { background: var(--panel2); cursor: pointer; }
+  .change-goal-form button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* stats */
+  .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .stat {
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg, var(--panel) 0%, var(--panel2) 100%);
+    border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;
+  }
+  .stat::after { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); }
+  .stat .label {
+    color: var(--ink-dim); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1.2px; font-family: 'Oswald', sans-serif; font-weight: 500;
+  }
+  .stat .value {
+    font-family: 'Oswald', sans-serif; font-size: 30px; font-weight: 700;
+    margin-top: 6px; color: #fff; font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .stat .sub { font-size: 12px; color: var(--ink-dim); margin-top: 6px; }
+
+  .progress-bar-wrap { margin-top: 4px; }
+  .progress-bar {
+    height: 14px; background: #0f0f11; border-radius: 7px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .progress-bar .fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), #ffb84d);
+    transition: width .3s;
+  }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-dim); margin-top: 6px; }
+  .progress-label b { color: var(--ink); }
+  .pace-tag {
+    display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;
+    margin-top: 8px;
+  }
+  .pace-tag.ahead { background: rgba(76,210,154,0.15); color: var(--good); border: 1px solid rgba(76,210,154,0.3); }
+  .pace-tag.behind { background: rgba(255,122,122,0.15); color: #ff7a7a; border: 1px solid rgba(255,122,122,0.3); }
+
+  .chart-wrap {
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; margin-top: 4px; height: 280px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th {
+    color: var(--ink-dim); font-weight: 600; text-transform: uppercase;
+    font-size: 10px; letter-spacing: 1.2px; font-family: 'Oswald', sans-serif;
+  }
+  tbody tr:hover { background: rgba(255,106,26,0.05); }
+  tr:last-child td { border-bottom: 0; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.miles { font-family: 'Oswald', sans-serif; font-weight: 700; color: var(--accent); font-size: 15px; }
+  .del-form button {
+    background: transparent; border: 1px solid var(--border); color: var(--ink-dim);
+    border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px;
+  }
+  .del-form button:hover { border-color: #ff7a7a; color: #ff7a7a; }
+
+  details.add {
+    margin-top: 16px; background: var(--panel2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+  }
+  details.add summary { cursor: pointer; color: var(--accent); font-size: 13px; font-weight: 500; }
+  details.add summary:hover { color: #fff; }
+  details.add form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+  details.add label {
+    display: flex; flex-direction: column; font-size: 10px;
+    color: var(--ink-dim); text-transform: uppercase; letter-spacing: 1px;
+    font-family: 'Oswald', sans-serif;
+  }
+  details.add input, details.add select {
+    margin-top: 4px; padding: 8px 10px; background: #0f0f11;
+    border: 1px solid var(--border); border-radius: 6px; color: var(--ink); font-size: 13px;
+    font-family: 'Inter', sans-serif;
+  }
+  details.add input:focus, details.add select:focus { outline: 0; border-color: var(--accent); }
+  details.add button {
+    grid-column: 1 / -1; padding: 10px 14px;
+    background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    font-family: 'Oswald', sans-serif; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer; font-size: 13px; transition: background .15s;
+  }
+  details.add button:hover { background: var(--accent-dk); }
+
+  .note { color: var(--ink-dim); font-size: 12px; margin-top: 10px; }
+  .empty { color: var(--ink-dim); font-style: italic; padding: 12px 0; }
+  footer { text-align: center; color: var(--ink-dimmer); font-size: 12px; padding: 24px; border-top: 1px solid var(--border); margin-top: 20px; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <h1>🏃 {{ challenge.name }}</h1>
+    <div class="sub">
+      <b>{{ challenge.start_date }} → {{ challenge.end_date }}</b>
+      &nbsp;•&nbsp; Registration closes {{ challenge.registration_close }}
+      &nbsp;•&nbsp; Warm-up and cool-down don't count toward your distance
+    </div>
+  </div>
+</header>
+
+<main>
+
+{% if not goal %}
+<section>
+  <h2>Pick Your Distance</h2>
+  <p class="note">Choose a goal for {{ challenge.name }}. You can change it later.</p>
+  <div class="goal-cards">
+    {% for g in goals %}
+    <div class="goal-card">
+      <div class="g-label">{{ g.label }}</div>
+      <div class="g-miles">{{ g.miles }} mi</div>
+      <form method="post" action="/goal">
+        <input type="hidden" name="goal" value="{{ g.key }}">
+        <button>Choose {{ g.label }}</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+
+<section>
+  <div class="current-goal">
+    <div><span class="label" style="display:block;color:var(--ink-dim);font-size:11px;text-transform:uppercase;letter-spacing:1.2px;font-family:'Oswald',sans-serif;">Your Goal</span>
+      <span class="g-name">{{ goal_info.label }} — {{ goal_miles }} mi</span></div>
+    <form class="change-goal-form" method="post" action="/goal">
+      <select name="goal">
+        {% for g in goals %}
+        <option value="{{ g.key }}" {% if g.key == goal.goal_key %}selected{% endif %}>{{ g.label }} ({{ g.miles }} mi)</option>
+        {% endfor %}
+      </select>
+      <button>Change goal</button>
+    </form>
+  </div>
+</section>
+
+<div class="top-stats">
+  <div class="stat">
+    <div class="label">Total Logged</div>
+    <div class="value">{{ total }} mi</div>
+    <div class="sub">Across {{ logs|length }} {{ 'entry' if logs|length == 1 else 'entries' }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Remaining</div>
+    <div class="value">{{ remaining }} mi</div>
+    <div class="sub">To hit {{ goal_miles }} mi by {{ challenge.end_date }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Days Left</div>
+    <div class="value">{{ days_left }}</div>
+    <div class="sub">In {{ challenge.name }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Pace Needed</div>
+    <div class="value">{{ pace_needed }} mi/day</div>
+    <div class="sub">To finish on time</div>
+  </div>
+</div>
+
+<section>
+  <h2>Progress</h2>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar"><div class="fill" style="width: {{ percent }}%;"></div></div>
+    <div class="progress-label">
+      <span><b>{{ total }}</b> / {{ goal_miles }} mi</span>
+      <span>{{ percent }}%</span>
+    </div>
+  </div>
+  {% if expected_to_date is not none %}
+    {% if total >= expected_to_date %}
+    <span class="pace-tag ahead">Ahead of pace (expected {{ expected_to_date }} mi by today)</span>
+    {% else %}
+    <span class="pace-tag behind">Behind pace (expected {{ expected_to_date }} mi by today)</span>
+    {% endif %}
+  {% endif %}
+
+  {% if cumulative|length > 1 %}
+  <div class="chart-wrap"><canvas id="mileageChart"></canvas></div>
+  {% endif %}
+</section>
+
+<section id="log">
+  <h2>Mileage Log</h2>
+  {% if logs %}
+  <table>
+    <thead><tr><th>Date</th><th>Activity</th><th class="num">Miles</th><th>Note</th><th></th></tr></thead>
+    <tbody>
+    {% for l in logs %}
+    <tr>
+      <td>{{ l.log_date }}</td>
+      <td>{{ l.activity }}</td>
+      <td class="num miles">{{ "%.2f"|format(l.miles) }}</td>
+      <td>{{ l.note or '' }}</td>
+      <td>
+        <form class="del-form" method="post" action="/log/{{ l.id }}/delete" onsubmit="return confirm('Delete this entry?');">
+          <button>Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">No miles logged yet — add your first entry below.</p>{% endif %}
+
+  <details class="add" open>
+    <summary>+ Log miles</summary>
+    <form method="post" action="/log">
+      <label>Date <input name="date" type="date" value="{{ today }}" required></label>
+      <label>Activity
+        <select name="activity">
+          {% for a in activities %}<option value="{{ a }}">{{ a }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Miles <input name="miles" type="number" step="0.01" min="0" required></label>
+      <label>Note <input name="note" placeholder="optional"></label>
+      <button>Log miles</button>
+    </form>
+  </details>
+</section>
+
+{% endif %}
+
+<footer>
+  {{ challenge.name }} mileage tracker — self-hosted, single user, no auth.
+</footer>
+</main>
+
+{% if goal and cumulative|length > 1 %}
+<script>
+const COLORS = { actual: '#ff6a1a', pace: '#6b6b70' };
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  scales: {
+    x: { ticks: { color: '#a3a3a8' }, grid: { color: '#2c2c31' } },
+    y: { ticks: { color: '#a3a3a8', callback: v => v + ' mi' }, grid: { color: '#2c2c31' } }
+  },
+  plugins: { legend: { labels: { color: '#f5f5f5', boxWidth: 12 } } }
+};
+
+new Chart(document.getElementById('mileageChart'), {
+  type: 'line',
+  data: {
+    labels: {{ pace | map(attribute=0) | list | tojson }},
+    datasets: [
+      {
+        label: 'Goal pace',
+        data: {{ pace | map(attribute=1) | list | tojson }},
+        borderColor: COLORS.pace, borderDash: [6, 4],
+        backgroundColor: 'transparent', pointRadius: 0, tension: 0,
+      },
+      {
+        label: 'Your cumulative miles',
+        data: {{ cumulative | tojson }},
+        parsing: { xAxisKey: '0', yAxisKey: '1' },
+        borderColor: COLORS.actual, backgroundColor: 'rgba(255,106,26,0.15)',
+        tension: 0.25, fill: true,
+      }
+    ]
+  },
+  options: baseOpts
+});
+</script>
+{% endif %}
+</body>
+</html>
