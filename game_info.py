@@ -10,8 +10,8 @@ from urllib.request import Request, urlopen
 
 CACHE = Path(__file__).parent / ".cache_game.json"
 CACHE_TTL_SEC = 6 * 60 * 60  # 6 hours
-URL = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=20260912&groups=80"
-HEADERS = {"User-Agent": "LATechVsLSU-Dashboard/1.0"}
+URL = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=20261017&groups=80"
+HEADERS = {"User-Agent": "UKvsOU-Dashboard/1.0"}
 
 
 def _fetch():
@@ -31,7 +31,7 @@ def kickoff():
         data = _fetch()
         for ev in data.get("events", []):
             name = ev.get("name", "").lower()
-            if "lsu" in name and ("louisiana tech" in name or "la tech" in name):
+            if "oklahoma" in name and "kentucky" in name:
                 comp = (ev.get("competitions") or [{}])[0]
                 broadcasts = comp.get("broadcasts") or []
                 networks = []

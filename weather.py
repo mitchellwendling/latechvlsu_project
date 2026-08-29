@@ -1,8 +1,8 @@
-"""National Weather Service forecast for Baton Rouge. Free, no API key.
+"""National Weather Service forecast for Norman, OK. Free, no API key.
 
 NWS only forecasts ~7 days out, so before T-7 we just show the upcoming
-7-day BR forecast (helpful climate context). Once inside the window, we
-filter to days that bracket kickoff (Sep 11-13, 2026).
+5-day Norman forecast (helpful climate context). Once inside the window, we
+filter to days that bracket kickoff (Oct 16-18, 2026).
 
 Result is cached to disk so the dashboard doesn't hit NWS on every render.
 """
@@ -14,11 +14,12 @@ from urllib.request import Request, urlopen
 
 CACHE = Path(__file__).parent / ".cache_weather.json"
 CACHE_TTL_SEC = 60 * 60  # 1 hour
-HEADERS = {"User-Agent": "LATechVsLSU-Dashboard (contact: localhost)"}
+HEADERS = {"User-Agent": "UKvsOU-Dashboard (contact: localhost)"}
 
-BATON_ROUGE_LAT = 30.4515
-BATON_ROUGE_LON = -91.1871
-GAME_DAYS = {"2026-09-11", "2026-09-12", "2026-09-13"}
+# Norman, OK (near Oklahoma Memorial Stadium)
+NORMAN_LAT = 35.2226
+NORMAN_LON = -97.4395
+GAME_DAYS = {"2026-10-16", "2026-10-17", "2026-10-18"}
 
 
 def _fetch(url):
@@ -47,7 +48,7 @@ def forecast():
             pass
 
     try:
-        pt = _fetch(f"https://api.weather.gov/points/{BATON_ROUGE_LAT},{BATON_ROUGE_LON}")
+        pt = _fetch(f"https://api.weather.gov/points/{NORMAN_LAT},{NORMAN_LON}")
         fc = _fetch(pt["properties"]["forecast"])
         all_periods = [_normalize(p) for p in fc["properties"]["periods"]]
 
@@ -55,7 +56,7 @@ def forecast():
         if game_periods:
             result = {
                 "mode": "game",
-                "label": "Game weekend forecast (Baton Rouge)",
+                "label": "Game weekend forecast (Norman, OK)",
                 "periods": game_periods,
             }
         else:
@@ -64,7 +65,7 @@ def forecast():
                        if p.get("name") and "night" not in p["name"].lower()]
             result = {
                 "mode": "preview",
-                "label": "Baton Rouge - next 5 days (game-day forecast available ~7 days before kickoff)",
+                "label": "Norman, OK - next 5 days (game-day forecast available ~7 days before kickoff)",
                 "periods": daytime[:5],
             }
         CACHE.write_text(json.dumps(result))

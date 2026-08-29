@@ -1,36 +1,36 @@
 """Static trip configuration. Single source of truth for the dashboard."""
 
 TRIP = {
-    "name": "LA Tech @ LSU",
-    "game_date": "2026-09-12",
-    "kickoff_note": "Time TBA (typical LSU home: 6:30 or 7:00 PM CT)",
-    "venue": "Tiger Stadium, Baton Rouge, LA",
+    "name": "Kentucky @ Oklahoma",
+    "game_date": "2026-10-17",
+    "kickoff_note": "Time TBA (SEC home games commonly 11:00 AM, 2:30, or 6:00 PM CT)",
+    "venue": "Gaylord Family Oklahoma Memorial Stadium, Norman, OK",
     "origin_airport": "CVG",
-    "destination_airport": "BTR",
-    "depart_date": "2026-09-11",
-    "return_date": "2026-09-13",
+    "destination_airport": "DFW",
+    "depart_date": "2026-10-16",
+    "return_date": "2026-10-18",
     "travelers": 1,
 }
 
 TICKET_SOURCES = [
     {
         "name": "SeatGeek",
-        "url": "https://seatgeek.com/lsu-tigers-football-vs-louisiana-tech-bulldogs-tickets/2026-09-12-6-pm/college-football/6618000",
-        "search_url": "https://seatgeek.com/search?search=LSU+Louisiana+Tech+September+12",
+        "url": "https://seatgeek.com/search?search=Oklahoma+Kentucky+October+17",
+        "search_url": "https://seatgeek.com/search?search=Oklahoma+Kentucky+October+17",
     },
     {
         "name": "StubHub",
-        "url": "https://www.stubhub.com/lsu-tigers-football-tickets",
-        "search_url": "https://www.stubhub.com/find/s/?q=LSU+Louisiana+Tech",
+        "url": "https://www.stubhub.com/oklahoma-sooners-football-tickets",
+        "search_url": "https://www.stubhub.com/find/s/?q=Oklahoma+Kentucky",
     },
     {
         "name": "Vivid Seats",
-        "url": "https://www.vividseats.com/lsu-tigers-football-tickets--sports-ncaa-football.html",
-        "search_url": "https://www.vividseats.com/search?searchTerm=LSU+Louisiana+Tech",
+        "url": "https://www.vividseats.com/oklahoma-sooners-football-tickets--sports-ncaa-football.html",
+        "search_url": "https://www.vividseats.com/search?searchTerm=Oklahoma+Kentucky",
     },
     {
-        "name": "LSU Official (Ticketmaster)",
-        "url": "https://lsusports.net/sports/football/tickets/",
-        "search_url": "https://www.ticketmaster.com/lsu-tigers-football-tickets/artist/805976",
+        "name": "OU Official (Ticketmaster)",
+        "url": "https://soonersports.com/sports/football/tickets",
+        "search_url": "https://www.ticketmaster.com/oklahoma-sooners-football-tickets/artist/805962",
     },
 ]

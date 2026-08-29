@@ -1,5 +1,5 @@
-"""Dashboard for the LSU vs LA Tech trip (Sep 12, 2026).
-Tracks CVG->BTR flights, Marriott hotels near Tiger Stadium, and game tickets.
+"""Dashboard for the Kentucky @ Oklahoma trip (Oct 17, 2026).
+Tracks CVG->DFW flights, Marriott hotels near Oklahoma Memorial Stadium, and game tickets.
 """
 from collections import defaultdict
 from datetime import datetime, timezone

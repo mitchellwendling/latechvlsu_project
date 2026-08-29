@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Baton Rouge Trip Dashboard — LA Tech @ LSU</title>
+<title>Norman Trip Dashboard — Kentucky @ Oklahoma</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,24 +10,25 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    /* LA Tech Bulldogs - Columbia Blue + Red (dominant) */
-    --bg: #08152a; --panel: #122849; --panel2: #1a3661;
-    --ink: #f1f4f9; --ink-dim: #94a8c6; --ink-dimmer: #5e7393;
-    --tech-red: #e8333a; --tech-red-dk: #b3232a;
-    --tech-blue: #6cace4; --tech-navy: #003087;
-    /* LSU (only used in matchup mark) */
-    --lsu-purple: #461d7c; --lsu-gold: #fdd023;
-    /* Aliases for legacy class refs */
-    --gold: var(--tech-red); --purple: var(--tech-navy); --accent: var(--tech-blue);
+    /* Kentucky Wildcats - Kentucky Blue + White (dominant) */
+    --bg: #04122e; --panel: #0c2452; --panel2: #14346e;
+    --ink: #f1f4f9; --ink-dim: #9fb4d6; --ink-dimmer: #64789e;
+    --uk-blue: #2f6fe0; --uk-deep: #0033A0; --uk-sky: #8fbdf0;
+    /* Oklahoma (only used in matchup mark) */
+    --ou-crimson: #9d1c28; --ou-cream: #f5ecc9;
+    /* Legacy aliases mapped to the Kentucky palette */
+    --tech-red: var(--uk-blue); --tech-red-dk: #1e57c4;
+    --tech-blue: var(--uk-sky); --tech-navy: var(--uk-deep);
+    --gold: var(--uk-blue); --purple: var(--uk-deep); --accent: var(--uk-sky);
     --good: #4cd29a; --bad: #ff7a7a; --warn: #ffb84d;
-    --border: #1f3358;
+    --border: #21407a;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; font: 15px/1.5 'Inter', -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
     background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(232,51,58,0.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, rgba(0,48,135,0.40), transparent 60%),
+      radial-gradient(1200px 600px at 80% -10%, rgba(47,111,224,0.14), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(0,48,135,0.45), transparent 60%),
       var(--bg);
     color: var(--ink); min-height: 100vh;
   }
@@ -36,8 +37,8 @@
   /* === Hero scoreboard === */
   header.hero {
     position: relative; overflow: hidden;
-    background: linear-gradient(135deg, #051028 0%, var(--tech-navy) 55%, #051028 100%);
-    border-bottom: 3px solid var(--tech-red);
+    background: linear-gradient(135deg, #041232 0%, var(--uk-deep) 55%, #041232 100%);
+    border-bottom: 3px solid #ffffff;
     padding: 24px 28px 22px;
   }
   header.hero::before {
@@ -59,8 +60,8 @@
     letter-spacing: 1px; flex-shrink: 0;
     box-shadow: 0 6px 20px rgba(0,0,0,0.4), inset 0 0 0 3px rgba(255,255,255,0.15);
   }
-  .badge.tech { background: var(--tech-red); color: #fff; border: 3px solid #fff; }
-  .badge.lsu  { background: var(--lsu-purple); color: var(--lsu-gold); border: 3px solid var(--lsu-gold); }
+  .badge.uk { background: var(--uk-deep); color: #fff; border: 3px solid #fff; }
+  .badge.ou { background: var(--ou-crimson); color: var(--ou-cream); border: 3px solid var(--ou-cream); }
   .team-name { font-family: 'Oswald', sans-serif; }
   .team-name .full { font-size: 18px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1; }
   .team-name .sub  { font-size: 11px; color: var(--ink-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
@@ -92,7 +93,7 @@
     display: flex; gap: 8px; align-items: stretch;
   }
   .clock-cell {
-    background: var(--tech-red); color: #fff;
+    background: var(--uk-deep); color: #fff;
     min-width: 54px; padding: 8px 10px; border-radius: 6px; text-align: center;
     box-shadow: 0 2px 0 rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.15);
   }
@@ -258,22 +259,22 @@
 <header class="hero">
   <div class="hero-inner">
     <div class="matchup">
-      <div class="badge tech">LT</div>
+      <div class="badge uk">UK</div>
       <div class="team-name">
-        <div class="full">Louisiana Tech</div>
-        <div class="sub">Bulldogs</div>
+        <div class="full">Kentucky</div>
+        <div class="sub">Wildcats</div>
       </div>
     </div>
     <div class="at-mark">
-      <span class="vs">SEPT 12</span>
+      <span class="vs">OCT 17</span>
       @
     </div>
     <div class="matchup right">
       <div class="team-name">
-        <div class="full">LSU</div>
-        <div class="sub">Tigers</div>
+        <div class="full">Oklahoma</div>
+        <div class="sub">Sooners</div>
       </div>
-      <div class="badge lsu">LSU</div>
+      <div class="badge ou">OU</div>
     </div>
   </div>
 
@@ -324,7 +325,7 @@
       <span class="label">Cheapest Flight (RT)</span>
     </div>
     <div class="value">{% if cheapest_flight %}<span class="dollar">$</span>{{ "%.0f"|format(cheapest_flight) }}{% else %}—{% endif %}</div>
-    <div class="sub">CVG → BTR, {{ trip.depart_date }} – {{ trip.return_date }}</div>
+    <div class="sub">CVG → DFW, {{ trip.depart_date }} – {{ trip.return_date }}</div>
   </div>
   <div class="stat">
     <div class="stat-head">
@@ -332,7 +333,7 @@
       <span class="label">Cheapest Marriott / night</span>
     </div>
     <div class="value">{% if cheapest_hotel %}<span class="dollar">$</span>{{ "%.0f"|format(cheapest_hotel) }}{% else %}—{% endif %}</div>
-    <div class="sub">Near Tiger Stadium</div>
+    <div class="sub">Near Oklahoma Memorial Stadium</div>
   </div>
   <div class="stat">
     <div class="stat-head">
@@ -357,10 +358,10 @@
 </div>
 
 <section id="flights">
-  <h2>Flights — CVG → BTR
+  <h2>Flights — CVG → DFW
     <span class="ts">{% if flights_ts %}Snapshot: {{ flights_ts }} UTC{% endif %}</span>
   </h2>
-  <p class="desc">Round trip {{ trip.depart_date }} → {{ trip.return_date }}, 1 adult. Sorted cheapest first.</p>
+  <p class="desc">Round trip {{ trip.depart_date }} → {{ trip.return_date }}, 1 adult. Sorted cheapest first. (DFW is ~3 hrs from Norman — plan a rental car.)</p>
   {% if flights %}
   <table>
     <thead><tr>
@@ -392,7 +393,7 @@
     <form method="post" action="/log/flight">
       <label>Airline <input name="airline" required></label>
       <label>Stops <input name="stops" type="number" min="0" value="1"></label>
-      <label>Outbound depart <input name="out_depart" placeholder="2026-09-11 6:35 AM"></label>
+      <label>Outbound depart <input name="out_depart" placeholder="2026-10-16 8:15 AM"></label>
       <label>Outbound arrive <input name="out_arrive"></label>
       <label>Return depart <input name="ret_depart"></label>
       <label>Return arrive <input name="ret_arrive"></label>
@@ -405,10 +406,10 @@
 </section>
 
 <section id="hotels">
-  <h2>Marriott Hotels Near Tiger Stadium
+  <h2>Marriott Hotels Near Oklahoma Memorial Stadium
     <span class="ts">{% if hotels_ts %}Snapshot: {{ hotels_ts }} UTC{% endif %}</span>
   </h2>
-  <p class="desc">2 nights ({{ trip.depart_date }} → {{ trip.return_date }}), 1 adult. Distances measured to Tiger Stadium (30.4119, -91.1838).</p>
+  <p class="desc">2 nights ({{ trip.depart_date }} → {{ trip.return_date }}), 1 adult. Distances measured to Oklahoma Memorial Stadium (35.2058, -97.4422).</p>
   {% if hotels %}
   <table>
     <thead><tr>
@@ -456,7 +457,7 @@
 </section>
 
 <section id="tickets">
-  <h2>Game Tickets — LA Tech @ LSU
+  <h2>Game Tickets — Kentucky @ Oklahoma
     <span class="ts">{% if tickets_ts %}Snapshot: {{ tickets_ts }} UTC{% endif %}</span>
   </h2>
   <p class="desc">Track "get-in" (cheapest available) ticket prices. No public ticket API is wired in — open a source below, check the cheapest listing, then log it here.</p>
@@ -503,7 +504,7 @@
 </section>
 
 <footer>
-  Data sources: Expedia (flights + hotels via MCP, snapshot {{ flights_ts or 'n/a' }}). Ticket prices are user-logged.
+  Flights + hotels: seeded estimates (refresh from Expedia or the log forms), snapshot {{ flights_ts or 'n/a' }}. Tickets: user-logged / SeatGeek. Weather via NWS, kickoff via ESPN.
   Rerun <code>python seed.py</code> to append a new snapshot — the charts above will fill in as history accumulates.
 </footer>
 </main>
@@ -537,7 +538,7 @@
   setInterval(tick, 1000);
 })();
 
-const COLORS = ['#e8333a', '#6cace4', '#4cd29a', '#ffb84d', '#c084fc', '#22d3ee', '#f1f4f9'];
+const COLORS = ['#5b9bff', '#8fbdf0', '#4cd29a', '#ffb84d', '#c084fc', '#22d3ee', '#f1f4f9'];
 const baseOpts = {
   responsive: true, maintainAspectRatio: false,
   scales: {
@@ -553,9 +554,9 @@ new Chart(document.getElementById('flightChart'), {
   data: {
     labels: {{ flight_history | map(attribute=0) | list | tojson }},
     datasets: [{
-      label: 'Cheapest CVG→BTR (round trip)',
+      label: 'Cheapest CVG→DFW (round trip)',
       data: {{ flight_history | map(attribute=1) | list | tojson }},
-      borderColor: '#e8333a', backgroundColor: 'rgba(232,51,58,0.15)',
+      borderColor: '#5b9bff', backgroundColor: 'rgba(91,155,255,0.15)',
       tension: 0.25, fill: true,
     }]
   },

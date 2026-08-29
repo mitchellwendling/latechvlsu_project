@@ -1,8 +1,11 @@
-"""Seed the price database with a real snapshot captured 2026-06-12
-from Expedia (flights + Marriott hotels) and reasonable ticket estimates.
+"""Seed the price database with a starter snapshot for the Norman trip
+(Kentucky @ Oklahoma, Oct 17, 2026) plus reasonable ticket estimates.
 
-Rerun this script anytime to append a new snapshot - history accumulates
-so the dashboard can chart price movement toward kickoff.
+NOTE: The flight (CVG->DFW) and hotel numbers below are ESTIMATES entered
+by hand while the Expedia live pull was unavailable. Refresh them with real
+figures anytime by editing the FLIGHTS / HOTELS lists (or via the in-app log
+forms) and rerunning this script. History accumulates so the dashboard can
+chart price movement toward kickoff.
 """
 import math
 import sys
@@ -10,8 +13,8 @@ from datetime import datetime, timezone
 
 from db import init_db, conn, insert_flight, insert_hotel, insert_ticket
 
-# Tiger Stadium, Baton Rouge
-STADIUM_LAT, STADIUM_LON = 30.4119, -91.1838
+# Gaylord Family Oklahoma Memorial Stadium, Norman, OK
+STADIUM_LAT, STADIUM_LON = 35.2058, -97.4422
 
 
 def haversine_miles(lat1, lon1, lat2, lon2):
@@ -23,95 +26,69 @@ def haversine_miles(lat1, lon1, lat2, lon2):
     return round(2 * r * math.asin(math.sqrt(a)), 2)
 
 
-# Captured 2026-06-12 via Expedia search_flights (CVG->BTR 9/11-9/13, 1 adult).
+# ESTIMATES (CVG->DFW round trip, 10/16-10/18, 1 adult) - refresh from Expedia.
+# Note: DFW is ~190 mi / ~3 hrs from Norman; plan a rental car for the drive.
 FLIGHTS = [
-    {"airline": "United", "stops": 1, "out_depart": "2026-09-11 5:14 PM",
-     "out_arrive": "2026-09-11 9:28 PM", "ret_depart": "2026-09-13 6:14 PM",
-     "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "5h 14m",
-     "duration_ret": "4h 45m", "layover_out": "1h 23m IAH",
-     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 308.40},
-    {"airline": "United", "stops": 1, "out_depart": "2026-09-11 6:35 AM",
-     "out_arrive": "2026-09-11 11:13 AM", "ret_depart": "2026-09-13 6:14 PM",
-     "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "5h 38m",
-     "duration_ret": "4h 45m", "layover_out": "1h 48m IAH",
-     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 308.40},
-    {"airline": "United", "stops": 2, "out_depart": "2026-09-11 10:22 AM",
-     "out_arrive": "2026-09-11 5:33 PM", "ret_depart": "2026-09-13 6:14 PM",
-     "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "8h 11m",
-     "duration_ret": "4h 45m", "layover_out": "53m IAD, 1h 15m IAH",
-     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 328.71},
-    {"airline": "United", "stops": 2, "out_depart": "2026-09-11 11:17 AM",
-     "out_arrive": "2026-09-11 5:33 PM", "ret_depart": "2026-09-13 6:14 PM",
-     "ret_arrive": "2026-09-13 11:59 PM", "duration_out": "7h 16m",
-     "duration_ret": "4h 45m", "layover_out": "55m ORD, 40m IAH",
-     "layover_ret": "41m IAH", "fare_name": "Basic Economy", "total_price": 358.70},
-    {"airline": "American", "stops": 1, "out_depart": "2026-09-11 1:12 PM",
-     "out_arrive": "2026-09-11 4:58 PM", "ret_depart": "2026-09-13 5:56 AM",
-     "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "4h 46m",
-     "duration_ret": "7h 18m", "layover_out": "1h 1m CLT",
-     "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 383.40},
-    {"airline": "American", "stops": 1, "out_depart": "2026-09-11 6:00 AM",
-     "out_arrive": "2026-09-11 10:51 AM", "ret_depart": "2026-09-13 5:56 AM",
-     "ret_arrive": "2026-09-13 2:14 PM", "duration_out": "5h 51m",
-     "duration_ret": "7h 18m", "layover_out": "1h 48m DFW",
-     "layover_ret": "3h 16m DFW", "fare_name": "Basic Economy", "total_price": 383.40},
+    {"airline": "American", "stops": 0, "out_depart": "2026-10-16 8:15 AM",
+     "out_arrive": "2026-10-16 9:52 AM", "ret_depart": "2026-10-18 6:40 PM",
+     "ret_arrive": "2026-10-18 9:59 PM", "duration_out": "2h 37m",
+     "duration_ret": "2h 19m", "layover_out": "", "layover_ret": "",
+     "fare_name": "Main Cabin (est.)", "total_price": 258.0},
+    {"airline": "American", "stops": 0, "out_depart": "2026-10-16 5:30 PM",
+     "out_arrive": "2026-10-16 7:07 PM", "ret_depart": "2026-10-18 12:15 PM",
+     "ret_arrive": "2026-10-18 3:34 PM", "duration_out": "2h 37m",
+     "duration_ret": "2h 19m", "layover_out": "", "layover_ret": "",
+     "fare_name": "Main Cabin (est.)", "total_price": 274.0},
+    {"airline": "Delta", "stops": 1, "out_depart": "2026-10-16 7:05 AM",
+     "out_arrive": "2026-10-16 11:20 AM", "ret_depart": "2026-10-18 4:10 PM",
+     "ret_arrive": "2026-10-18 10:05 PM", "duration_out": "5h 15m",
+     "duration_ret": "4h 55m", "layover_out": "1h 10m ATL",
+     "layover_ret": "1h 20m ATL", "fare_name": "Main Cabin (est.)", "total_price": 297.0},
+    {"airline": "United", "stops": 1, "out_depart": "2026-10-16 6:00 AM",
+     "out_arrive": "2026-10-16 10:35 AM", "ret_depart": "2026-10-18 3:25 PM",
+     "ret_arrive": "2026-10-18 9:40 PM", "duration_out": "5h 35m",
+     "duration_ret": "5h 15m", "layover_out": "1h 25m ORD",
+     "layover_ret": "1h 30m IAH", "fare_name": "Economy (est.)", "total_price": 318.0},
 ]
 
-# Captured 2026-06-12 via Expedia search_hotels, Marriott-brand properties only.
+# ESTIMATES - Marriott-brand properties in Norman, OK, near the stadium.
+# Prices are game-weekend guesses; refresh from Expedia for live rates.
 HOTELS = [
-    {"hotel_id": "23356809",
-     "hotel_name": "Courtyard by Marriott Baton Rouge Downtown",
-     "star_rating": 3.0, "guest_rating": 8.8, "review_count": 629,
-     "avg_nightly_price": 258, "total_price": 622,
-     "latitude": 30.449163, "longitude": -91.188032,
-     "booking_url": "https://www.expedia.com/.h23356809.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
-    {"hotel_id": "1668442",
-     "hotel_name": "Residence Inn by Marriott Baton Rouge near LSU",
-     "star_rating": 3.0, "guest_rating": 8.8, "review_count": 288,
-     "avg_nightly_price": 239, "total_price": 557,
-     "latitude": 30.430536, "longitude": -91.117408,
-     "booking_url": "https://www.expedia.com/.h1668442.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
-    {"hotel_id": "66087376",
-     "hotel_name": "Element by Marriott Baton Rouge South",
-     "star_rating": 3.0, "guest_rating": 9.2, "review_count": 452,
-     "avg_nightly_price": 199, "total_price": 464,
-     "latitude": 30.397511, "longitude": -91.095729,
-     "booking_url": "https://www.expedia.com/.h66087376.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
-    {"hotel_id": "526461",
-     "hotel_name": "TownePlace Suites by Marriott Baton Rouge South",
-     "star_rating": 3.0, "guest_rating": 8.2, "review_count": 1008,
-     "avg_nightly_price": 233, "total_price": 543,
-     "latitude": 30.39656, "longitude": -91.0954,
-     "booking_url": "https://www.expedia.com/.h526461.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
-    {"hotel_id": "2780250",
-     "hotel_name": "SpringHill Suites by Marriott Baton Rouge North/Airport",
-     "star_rating": 3.0, "guest_rating": 8.8, "review_count": 1024,
-     "avg_nightly_price": 116, "total_price": 271,
-     "latitude": 30.521, "longitude": -91.156784,
-     "booking_url": "https://www.expedia.com/.h2780250.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
-    {"hotel_id": "4406449",
-     "hotel_name": "Renaissance Baton Rouge Hotel",
-     "star_rating": 4.0, "guest_rating": 9.2, "review_count": 1016,
-     "avg_nightly_price": 395, "total_price": 944,
-     "latitude": 30.38727, "longitude": -91.09388,
-     "booking_url": "https://www.expedia.com/.h4406449.Hotel-Information?chkin=2026-09-11&chkout=2026-09-13"},
+    {"hotel_id": "est-courtyard-nor",
+     "hotel_name": "Courtyard by Marriott Oklahoma City Norman",
+     "star_rating": 3.0, "guest_rating": None, "review_count": None,
+     "avg_nightly_price": 189, "total_price": 378,
+     "latitude": 35.2163, "longitude": -97.4785,
+     "booking_url": "https://www.marriott.com/en-us/hotels/okccn-courtyard-oklahoma-city-norman/"},
+    {"hotel_id": "est-residence-nor",
+     "hotel_name": "Residence Inn by Marriott Oklahoma City Norman",
+     "star_rating": 3.0, "guest_rating": None, "review_count": None,
+     "avg_nightly_price": 209, "total_price": 418,
+     "latitude": 35.2185, "longitude": -97.4790,
+     "booking_url": "https://www.marriott.com/en-us/hotels/okcnr-residence-inn-oklahoma-city-norman/"},
+    {"hotel_id": "est-fairfield-nor",
+     "hotel_name": "Fairfield Inn & Suites by Marriott Oklahoma City Norman",
+     "star_rating": 2.5, "guest_rating": None, "review_count": None,
+     "avg_nightly_price": 169, "total_price": 338,
+     "latitude": 35.2090, "longitude": -97.4770,
+     "booking_url": "https://www.marriott.com/en-us/hotels/okcfn-fairfield-inn-and-suites-oklahoma-city-norman/"},
 ]
 
-# Estimated ticket "get-in" prices for LSU vs LA Tech (non-conference, early season).
+# Estimated ticket "get-in" prices for Oklahoma vs Kentucky (SEC conference game).
 # Replace with real numbers from SeatGeek/StubHub when you check.
 TICKETS = [
-    {"source": "SeatGeek", "section": "Upper deck (get-in)",
-     "get_in_price": 38.0, "listing_count": None,
+    {"source": "SeatGeek", "section": "Upper level (get-in)",
+     "get_in_price": 95.0, "listing_count": None,
      "note": "Estimate - check SeatGeek for live get-in price",
-     "listing_url": "https://seatgeek.com/search?search=LSU+Louisiana+Tech+September+12"},
-    {"source": "StubHub", "section": "Upper deck (get-in)",
-     "get_in_price": 45.0, "listing_count": None,
+     "listing_url": "https://seatgeek.com/search?search=Oklahoma+Kentucky+October+17"},
+    {"source": "StubHub", "section": "Upper level (get-in)",
+     "get_in_price": 110.0, "listing_count": None,
      "note": "Estimate - StubHub typically runs a few dollars above SeatGeek",
-     "listing_url": "https://www.stubhub.com/find/s/?q=LSU+Louisiana+Tech"},
-    {"source": "Vivid Seats", "section": "Upper deck (get-in)",
-     "get_in_price": 42.0, "listing_count": None,
-     "note": "Estimate - non-conference home opener pricing",
-     "listing_url": "https://www.vividseats.com/search?searchTerm=LSU+Louisiana+Tech"},
+     "listing_url": "https://www.stubhub.com/find/s/?q=Oklahoma+Kentucky"},
+    {"source": "Vivid Seats", "section": "Upper level (get-in)",
+     "get_in_price": 102.0, "listing_count": None,
+     "note": "Estimate - SEC conference matchup pricing",
+     "listing_url": "https://www.vividseats.com/search?searchTerm=Oklahoma+Kentucky"},
 ]
 
 

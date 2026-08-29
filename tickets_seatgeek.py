@@ -1,4 +1,4 @@
-"""Fetch live SeatGeek prices for LSU vs LA Tech and append a snapshot.
+"""Fetch live SeatGeek prices for Kentucky vs Oklahoma and append a snapshot.
 
 Setup (once):
   1. Sign up at https://seatgeek.com/account/develop
@@ -25,10 +25,10 @@ import json
 from db import init_db, conn, insert_ticket
 
 API = "https://api.seatgeek.com/2/events"
-QUERY = "LSU Louisiana Tech"
-DATE_FROM = "2026-09-12"
-DATE_TO = "2026-09-13"
-UA = "Mozilla/5.0 (compatible; LATechVsLSU-Dashboard/1.0)"
+QUERY = "Oklahoma Kentucky"
+DATE_FROM = "2026-10-17"
+DATE_TO = "2026-10-18"
+UA = "Mozilla/5.0 (compatible; UKvsOU-Dashboard/1.0)"
 
 
 def find_event(client_id):
@@ -47,7 +47,7 @@ def find_event(client_id):
         return None
     for e in events:
         title = e.get("title", "").lower()
-        if "lsu" in title and ("louisiana tech" in title or "la tech" in title):
+        if "oklahoma" in title and "kentucky" in title:
             return e
     return events[0]
 
@@ -120,7 +120,7 @@ def snapshot():
     if is_new_low and lowest <= threshold:
         delta = f" (was ${prev_low:.2f})" if prev_low is not None else ""
         msg = f"Get-in ${lowest:.2f}{delta}. {stats.get('listing_count')} listings."
-        mac_notify(f"LSU vs LA Tech ticket drop - new low!", msg)
+        mac_notify(f"Kentucky vs Oklahoma ticket drop - new low!", msg)
         print(f"ALERT fired: new low at ${lowest:.2f} (under threshold ${threshold:.0f})")
     elif is_new_low:
         print(f"New all-time low (${lowest:.2f}), but above alert threshold ${threshold:.0f}.")
